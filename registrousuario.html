@@ -123,8 +123,8 @@
             });
         });
 
-        // Función para registrar un usuario
-        async function registerUser(event) {
+        // Función para registrar un usuario (ahora en el ámbito global)
+        window.registerUser = async function(event) {
             event.preventDefault();
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
@@ -141,8 +141,8 @@
             }
         }
 
-        // Función para iniciar sesión
-        async function loginUser(event) {
+        // Función para iniciar sesión (ahora en el ámbito global)
+        window.loginUser = async function(event) {
             event.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
