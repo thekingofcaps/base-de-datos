@@ -117,7 +117,7 @@
                     // Usuario no autenticado
                     messageElement.innerText = "Por favor, inicia sesión o regístrate.";
                     document.getElementById('register-form').style.display = 'block';
-                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('login-form').style.display = 'block';
                     document.getElementById('logout-button').style.display = 'none';
                 }
             });
@@ -175,15 +175,20 @@
             }
         }
 
-        // Función para cerrar sesión
-        async function logoutUser() {
-            await signOut(auth);
-            document.getElementById('auth-message').innerText = "Has cerrado sesión.";
-            document.getElementById('register-form').style.display = 'block';
-            document.getElementById('logout-button').style.display = 'none';
-        }
+        // Función para cerrar sesión (haciéndola global)
+        window.logoutUser = async function() {
+            try {
+                await signOut(auth);
+                document.getElementById('auth-message').innerText = "Has cerrado sesión.";
+                document.getElementById('register-form').style.display = 'block';
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('logout-button').style.display = 'none';
+            } catch (error) {
+                document.getElementById('auth-message').innerText = "Error al cerrar sesión.";
+            }
+        };
 
-        // Cambiar entre formularios
+        // Cambiar entre formularios (haciéndola global)
         window.toggleForm = (formId) => {
             document.getElementById('register-form').style.display = 'none';
             document.getElementById('login-form').style.display = 'none';
