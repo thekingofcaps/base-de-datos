@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
+    <title>Registro e Inicio de Sesión</title>
     <style>
         /* Estilos generales */
         body {
@@ -16,8 +16,8 @@
             margin: 0;
         }
 
-        /* Contenedor del formulario */
-        .form-container {
+        /* Contenedor principal */
+        .auth-container {
             background: #ffffff;
             padding: 2rem;
             border-radius: 12px;
@@ -28,15 +28,15 @@
         }
 
         /* Título */
-        .form-container h2 {
+        .auth-container h2 {
             font-size: 24px;
             color: #333;
             margin-bottom: 1rem;
         }
 
         /* Campos de entrada */
-        .form-container input[type="email"],
-        .form-container input[type="password"] {
+        .auth-container input[type="email"],
+        .auth-container input[type="password"] {
             width: 100%;
             padding: 12px;
             margin: 8px 0;
@@ -46,8 +46,8 @@
             background-color: #f9fafb;
         }
 
-        /* Botón de registro */
-        .form-container button {
+        /* Botones */
+        .auth-container button {
             width: 100%;
             padding: 12px;
             background-color: #4CAF50;
@@ -60,23 +60,34 @@
             transition: background-color 0.3s ease;
         }
 
-        .form-container button:hover {
+        .auth-container button:hover {
             background-color: #45a049;
+        }
+
+        /* Enlaces */
+        .auth-container a {
+            display: block;
+            margin-top: 10px;
+            color: #4CAF50;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .auth-container a:hover {
+            text-decoration: underline;
         }
 
         /* Mensajes de error o éxito */
         .message {
             font-size: 14px;
             margin-top: 1rem;
-            color: #e74c3c;
+            color: #333;
         }
     </style>
     <script type="module">
-        // Importar las funciones necesarias desde el SDK de Firebase
+        // Importar Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         // Configuración de Firebase
         const firebaseConfig = {
@@ -91,50 +102,99 @@
 
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-
-        // Inicializar Firebase Authentication y Firestore
         const auth = getAuth();
-        const db = getFirestore();
 
         // Función para registrar un usuario
-        window.registerUser = async function(event) {
-            event.preventDefault(); // Prevenir el envío automático del formulario
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const messageElement = document.getElementById('message');
+        async function registerUser(event) {
+            event.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const messageElement = document.getElementById('auth-message');
 
             try {
-                // Registrar al usuario con email y contraseña
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-
-                // Guardar información adicional en Firestore
-                await setDoc(doc(db, "usuarios", user.uid), {
-                    email: email,
-                    puntos: 0,
-                    descuentos: []
-                });
-
                 messageElement.style.color = "green";
-                messageElement.innerText = "¡Usuario registrado con éxito!";
+                messageElement.innerText = `¡Bienvenido, ${user.email}! Registro exitoso.`;
             } catch (error) {
                 messageElement.style.color = "red";
                 messageElement.innerText = "Error en el registro: " + error.message;
             }
         }
+
+        // Función para iniciar sesión
+        async function loginUser(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const messageElement = document.getElementById('auth-message');
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                messageElement.style.color = "green";
+                messageElement.innerText = `¡Bienvenido, ${user.email}! Has iniciado sesión.`;
+            } catch (error) {
+                messageElement.style.color = "red";
+                messageElement.innerText = "Error en el inicio de sesión: " + error.message;
+            }
+        }
+
+        // Función para recuperar contraseña
+        async function resetPassword(event) {
+            event.preventDefault();
+            const email = document.getElementById('reset-email').value;
+            const messageElement = document.getElementById('auth-message');
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                messageElement.style.color = "green";
+                messageElement.innerText = "Correo de recuperación enviado.";
+            } catch (error) {
+                messageElement.style.color = "red";
+                messageElement.innerText = "Error al enviar el correo de recuperación: " + error.message;
+            }
+        }
+
+        // Función para cambiar entre formularios
+        function toggleForm(formId) {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('reset-form').style.display = 'none';
+            document.getElementById(formId).style.display = 'block';
+        }
     </script>
 </head>
 <body>
-    <div class="form-container">
-        <h2>Crear una Cuenta</h2>
-        <form onsubmit="registerUser(event)">
-            <input type="email" id="email" placeholder="Correo electrónico" required>
-            <input type="password" id="password" placeholder="Contraseña" required>
-            <button type="submit">Registrar</button>
+    <div class="auth-container">
+        <h2>Bienvenido a King of Caps</h2>
+        <p id="auth-message" class="message"></p>
+
+        <!-- Formulario de Registro -->
+        <form id="register-form" onsubmit="registerUser(event)">
+            <input type="email" id="register-email" placeholder="Correo electrónico" required>
+            <input type="password" id="register-password" placeholder="Contraseña" required>
+            <button type="submit">Registrarse</button>
+            <a href="#" onclick="toggleForm('login-form')">¿Ya tienes cuenta? Inicia sesión</a>
+            <a href="#" onclick="toggleForm('reset-form')">¿Olvidaste tu contraseña?</a>
         </form>
-        <div id="message" class="message"></div>
+
+        <!-- Formulario de Inicio de Sesión -->
+        <form id="login-form" style="display: none;" onsubmit="loginUser(event)">
+            <input type="email" id="login-email" placeholder="Correo electrónico" required>
+            <input type="password" id="login-password" placeholder="Contraseña" required>
+            <button type="submit">Iniciar Sesión</button>
+            <a href="#" onclick="toggleForm('register-form')">¿No tienes cuenta? Regístrate</a>
+            <a href="#" onclick="toggleForm('reset-form')">¿Olvidaste tu contraseña?</a>
+        </form>
+
+        <!-- Formulario de Recuperación de Contraseña -->
+        <form id="reset-form" style="display: none;" onsubmit="resetPassword(event)">
+            <input type="email" id="reset-email" placeholder="Correo electrónico" required>
+            <button type="submit">Recuperar Contraseña</button>
+            <a href="#" onclick="toggleForm('login-form')">¿Ya tienes cuenta? Inicia sesión</a>
+            <a href="#" onclick="toggleForm('register-form')">¿No tienes cuenta? Regístrate</a>
+        </form>
     </div>
 </body>
 </html>
