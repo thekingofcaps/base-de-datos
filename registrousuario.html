@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro de Usuario</title>
+    <script type="module">
+        // Importar las funciones necesarias desde el SDK de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQgDp5MVksqda2_0Qug2SoVbzwgma1Bv4",
+            authDomain: "basededatos-kingofcaps.firebaseapp.com",
+            projectId: "basededatos-kingofcaps",
+            storageBucket: "basededatos-kingofcaps.firebasestorage.app",
+            messagingSenderId: "30351555703",
+            appId: "1:30351555703:web:014bc536dcef8b5ea09a72",
+            measurementId: "G-QTQZV35327"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Inicializar Firebase Authentication y Firestore
+        const auth = getAuth();
+        const db = getFirestore();
+
+        // Función para registrar un usuario
+        async function registerUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // Registrar al usuario con email y contraseña
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Guardar información adicional en Firestore
+                await setDoc(doc(db, "usuarios", user.uid), {
+                    email: email,
+                    puntos: 0, // Por ejemplo, puntos de lealtad
+                    descuentos: [] // Array para almacenar códigos de descuento
+                });
+
+                alert("¡Usuario registrado con éxito!");
+            } catch (error) {
+                console.error("Error en el registro:", error.message);
+                alert("Error en el registro: " + error.message);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>Registro de Usuario</h2>
+    <input type="email" id="email" placeholder="Correo electrónico" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+    <button onclick="registerUser()">Registrar</button>
+</body>
+</html>
