@@ -8,7 +8,7 @@
         /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
-            background: #f3f4f6; /* Color de fondo similar al estilo Canva */
+            background: #f3f4f6;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -68,7 +68,7 @@
         .message {
             font-size: 14px;
             margin-top: 1rem;
-            color: #e74c3c; /* Color para errores */
+            color: #e74c3c;
         }
     </style>
     <script type="module">
@@ -98,7 +98,9 @@
         const db = getFirestore();
 
         // Función para registrar un usuario
-        async function registerUser() {
+        window.registerUser = async function(event) {
+            event.preventDefault(); // Prevenir el envío automático del formulario
+
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const messageElement = document.getElementById('message');
@@ -111,8 +113,8 @@
                 // Guardar información adicional en Firestore
                 await setDoc(doc(db, "usuarios", user.uid), {
                     email: email,
-                    puntos: 0, // Puntos de fidelidad iniciales
-                    descuentos: [] // Array para descuentos
+                    puntos: 0,
+                    descuentos: []
                 });
 
                 messageElement.style.color = "green";
@@ -127,9 +129,11 @@
 <body>
     <div class="form-container">
         <h2>Crear una Cuenta</h2>
-        <input type="email" id="email" placeholder="Correo electrónico" required>
-        <input type="password" id="password" placeholder="Contraseña" required>
-        <button onclick="registerUser()">Registrar</button>
+        <form onsubmit="registerUser(event)">
+            <input type="email" id="email" placeholder="Correo electrónico" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <button type="submit">Registrar</button>
+        </form>
         <div id="message" class="message"></div>
     </div>
 </body>
