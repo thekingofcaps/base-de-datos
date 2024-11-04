@@ -157,12 +157,12 @@
         }
 
         // Función para cambiar entre formularios
-        window.toggleForm = function(formId) {
+        window.toggleForm = (formId) => {
             document.getElementById('register-form').style.display = 'none';
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('reset-form').style.display = 'none';
             document.getElementById(formId).style.display = 'block';
-        }
+        };
     </script>
 </head>
 <body>
