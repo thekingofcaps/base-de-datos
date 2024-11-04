@@ -85,9 +85,8 @@
         }
     </style>
     <script type="module">
-        // Importar Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         // Configuración de Firebase
         const firebaseConfig = {
@@ -100,9 +99,29 @@
             measurementId: "G-QTQZV35327"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth();
+
+        // Detectar el estado de autenticación al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            onAuthStateChanged(auth, (user) => {
+                const messageElement = document.getElementById('auth-message');
+                if (user) {
+                    // Usuario autenticado
+                    messageElement.style.color = "green";
+                    messageElement.innerText = `¡Bienvenido, ${user.email}!`;
+                    document.getElementById('register-form').style.display = 'none';
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('logout-button').style.display = 'block';
+                } else {
+                    // Usuario no autenticado
+                    messageElement.innerText = "Por favor, inicia sesión o regístrate.";
+                    document.getElementById('register-form').style.display = 'block';
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('logout-button').style.display = 'none';
+                }
+            });
+        });
 
         // Función para registrar un usuario
         async function registerUser(event) {
@@ -115,7 +134,7 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 messageElement.style.color = "green";
-                messageElement.innerText = `¡Bienvenido, ${user.email}! Registro exitoso.`;
+                messageElement.innerText = `¡Registro exitoso, ${user.email}!`;
             } catch (error) {
                 messageElement.style.color = "red";
                 messageElement.innerText = "Error en el registro: " + error.message;
@@ -133,7 +152,7 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 messageElement.style.color = "green";
-                messageElement.innerText = `¡Bienvenido, ${user.email}! Has iniciado sesión.`;
+                messageElement.innerText = `¡Bienvenido de nuevo, ${user.email}!`;
             } catch (error) {
                 messageElement.style.color = "red";
                 messageElement.innerText = "Error en el inicio de sesión: " + error.message;
@@ -156,7 +175,15 @@
             }
         }
 
-        // Función para cambiar entre formularios
+        // Función para cerrar sesión
+        async function logoutUser() {
+            await signOut(auth);
+            document.getElementById('auth-message').innerText = "Has cerrado sesión.";
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('logout-button').style.display = 'none';
+        }
+
+        // Cambiar entre formularios
         window.toggleForm = (formId) => {
             document.getElementById('register-form').style.display = 'none';
             document.getElementById('login-form').style.display = 'none';
@@ -195,6 +222,9 @@
             <a href="#" onclick="toggleForm('login-form')">¿Ya tienes cuenta? Inicia sesión</a>
             <a href="#" onclick="toggleForm('register-form')">¿No tienes cuenta? Regístrate</a>
         </form>
+
+        <!-- Botón de Cerrar Sesión -->
+        <button id="logout-button" style="display: none;" onclick="logoutUser()">Cerrar Sesión</button>
     </div>
 </body>
 </html>
