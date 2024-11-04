@@ -1,7 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuario</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6; /* Color de fondo similar al estilo Canva */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Contenedor del formulario */
+        .form-container {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Título */
+        .form-container h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        /* Campos de entrada */
+        .form-container input[type="email"],
+        .form-container input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f9fafb;
+        }
+
+        /* Botón de registro */
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+
+        /* Mensajes de error o éxito */
+        .message {
+            font-size: 14px;
+            margin-top: 1rem;
+            color: #e74c3c; /* Color para errores */
+        }
+    </style>
     <script type="module">
         // Importar las funciones necesarias desde el SDK de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -32,6 +101,7 @@
         async function registerUser() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const messageElement = document.getElementById('message');
 
             try {
                 // Registrar al usuario con email y contraseña
@@ -41,22 +111,26 @@
                 // Guardar información adicional en Firestore
                 await setDoc(doc(db, "usuarios", user.uid), {
                     email: email,
-                    puntos: 0, // Por ejemplo, puntos de lealtad
-                    descuentos: [] // Array para almacenar códigos de descuento
+                    puntos: 0, // Puntos de fidelidad iniciales
+                    descuentos: [] // Array para descuentos
                 });
 
-                alert("¡Usuario registrado con éxito!");
+                messageElement.style.color = "green";
+                messageElement.innerText = "¡Usuario registrado con éxito!";
             } catch (error) {
-                console.error("Error en el registro:", error.message);
-                alert("Error en el registro: " + error.message);
+                messageElement.style.color = "red";
+                messageElement.innerText = "Error en el registro: " + error.message;
             }
         }
     </script>
 </head>
 <body>
-    <h2>Registro de Usuario</h2>
-    <input type="email" id="email" placeholder="Correo electrónico" required>
-    <input type="password" id="password" placeholder="Contraseña" required>
-    <button onclick="registerUser()">Registrar</button>
+    <div class="form-container">
+        <h2>Crear una Cuenta</h2>
+        <input type="email" id="email" placeholder="Correo electrónico" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button onclick="registerUser()">Registrar</button>
+        <div id="message" class="message"></div>
+    </div>
 </body>
 </html>
